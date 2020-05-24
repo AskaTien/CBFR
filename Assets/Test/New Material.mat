@@ -22,7 +22,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: New Material
   m_Shader: {fileID: 4800000, guid: df74e04103aad4825bc968dc81c34431, type: 3}
-  m_ShaderKeywords: _LAYERNUMBERS_ONE
+  m_ShaderKeywords: _LAYERNUMBERS_SEVEN
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -45,19 +45,19 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1Mask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 0033c97a57b454336890af7aaf691e43, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1NAOR:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 4d5440a4342b047d0936fe87fdab22c3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1Pattern:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 2ec6e1532acb1254f9f3797b5d82db44, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer2Mask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 2657fa53171ba43a7bf8abb85bcc069b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer2NAOR:
@@ -69,7 +69,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer3Mask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 6d9863426efd94c31b1d55511c5aa194, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer3NAOR:
@@ -93,7 +93,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer5Mask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 6d9863426efd94c31b1d55511c5aa194, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer5NAOR:
@@ -105,7 +105,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer6Mask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 6d9863426efd94c31b1d55511c5aa194, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer6NAOR:
@@ -117,7 +117,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer7Mask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: b602dfbc64df0463a9eba36d17ef13cc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer7NAOR:
@@ -129,7 +129,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer8Mask:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 0de1567a116924bdcaa2f7ac7fbb24e2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer8NAOR:
@@ -141,7 +141,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 2ec6e1532acb1254f9f3797b5d82db44, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -161,11 +161,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WholeNAOR:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 93ff20ca7ee8d49569c93cd56f00061a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WholePattern:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 9a81f1a59f171804e84fce76584bdcb7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -178,6 +178,7 @@ Material:
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
+    - _GlossinessSource: 0
     - _GlossyReflections: 0
     - _Layer1AOScale: 1
     - _Layer1MetallicScale: 0
@@ -211,13 +212,16 @@ Material:
     - _Layer8MetallicScale: 0
     - _Layer8NormalScale: 1
     - _Layer8RoughnessScale: 1
-    - _LayerNumbers: 0
+    - _LayerNumbers: 6
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _Shininess: 0
     - _Smoothness: 0.5
+    - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
+    - _SpecSource: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0

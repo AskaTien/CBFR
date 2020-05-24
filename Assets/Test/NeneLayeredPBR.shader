@@ -10,7 +10,7 @@
 		_WholeColor("Whole Color", Color) = (1,1,1,1)
 		_WholePattern("Whole Pattern", 2D) = "black" {}
 		_WholePatternColor("Whole Pattern Color", Color) = (1,1,1,1)
-		[NoScaleOffset]_WholeNAOR("Whole NAOR", 2D) = "bump" {}
+		_WholeNAOR("Whole NAOR", 2D) = "bump" {}
 		_WholeNormalScale("Whole Normal Scale", Range(0 , 3)) = 1
 		_WholeAOScale("Whole AO Scale", Range(0 , 1)) = 1
 		_WholeRoughnessScale("Whole Roughness Scale", Range(0 , 1)) = 1
@@ -253,7 +253,7 @@
 
 		half4 PatternBlend(half4 color, half4 pattern)
 		{
-			color.rgb = lerp(color.rgb, pattern.rbg, pattern.a);
+			color.rgb = lerp(color.rgb, pattern.rgb, pattern.a);
 			color.a = lerp(color.a, 1, pattern.a);
 
 			return color;
@@ -270,7 +270,7 @@
 		{
 			b.color  = lerp(b.color, l.color, mask);
 			b.normal = lerp(b.normal, BlendNormal(b.normal, l.normal), mask);
-			b.mso	  = lerp(b.mso, l.mso, mask);
+			b.mso	 = lerp(b.mso, l.mso, mask);
 
 			return b;
 		}
@@ -278,7 +278,7 @@
 		ENDHLSL
 
 
-			Pass
+		Pass
 		{
 
 			Name "Forward"
@@ -331,6 +331,8 @@
 			//--------------------------------------
 			// GPU Instancing
 			#pragma multi_compile_instancing
+
+			#define _NORMALMAP 1
 
 			#pragma vertex LayeredVertex
 			#pragma fragment LayeredFragment
@@ -389,70 +391,69 @@
 				SurfaceData surfaceData;
 
 				Layer base;
-				base.color = PatternBlend(_WholeColor, SAMPLE_TEXTURE2D(_WholePattern, sampler_WholePattern, input.uv));
-				NaorDecode(SAMPLE_TEXTURE2D(_WholeNAOR, sampler_WholePattern, input.uv), _WholeNormalScale, _WholeAOScale, _WholeRoughnessScale, base.normal, base.mso.y, base.mso.z);
+				base.color = PatternBlend(_WholeColor, SAMPLE_TEXTURE2D(_WholePattern, sampler_WholePattern, TRANSFORM_TEX(input.uv, _WholePattern)) * _WholePatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_WholeNAOR, sampler_WholePattern, TRANSFORM_TEX(input.uv, _WholeNAOR)), _WholeNormalScale, _WholeAOScale, _WholeRoughnessScale, base.normal, base.mso.y, base.mso.z);
 				base.mso.x = _WholeMetallicScale;	
 				
 				Layer layer;
-//#if defined(_LAYERNUMBERS_ONE)||defined(_LAYERNUMBERS_TWO)||defined(_LAYERNUMBERS_THREE)||defined(_LAYERNUMBERS_FOUR)||defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
-//				layer.color = PatternBlend(_Layer1Color, SAMPLE_TEXTURE2D(_Layer1Pattern, sampler_Layer1Pattern, input.uv));
-//				NaorDecode(SAMPLE_TEXTURE2D(_Layer1NAOR, sampler_Layer1Pattern, input.uv), _Layer1NormalScale, _Layer1AOScale, _Layer1RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
-//				layer.mso.x = _Layer1MetallicScale;
-//
-//				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer1Mask, sampler_Layer1Pattern, input.uv).r);
-//#endif
-//#if defined(_LAYERNUMBERS_TWO)||defined(_LAYERNUMBERS_THREE)||defined(_LAYERNUMBERS_FOUR)||defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
-//				layer.color = PatternBlend(_Layer2Color, SAMPLE_TEXTURE2D(_Layer2Pattern, sampler_Layer2Pattern, input.uv));
-//				NaorDecode(SAMPLE_TEXTURE2D(_Layer2NAOR, sampler_Layer2Pattern, input.uv), _Layer2NormalScale, _Layer2AOScale, _Layer2RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
-//				layer.mso.x = _Layer2MetallicScale;
-//
-//				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer2Mask, sampler_Layer2Pattern, input.uv).r);
-//#endif
-//#if defined(_LAYERNUMBERS_THREE)||defined(_LAYERNUMBERS_FOUR)||defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
-//				layer.color = PatternBlend(_Layer3Color, SAMPLE_TEXTURE2D(_Layer3Pattern, sampler_Layer3Pattern, input.uv));
-//				NaorDecode(SAMPLE_TEXTURE2D(_Layer3NAOR, sampler_Layer3Pattern, input.uv), _Layer3NormalScale, _Layer3AOScale, _Layer3RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
-//				layer.mso.x = _Layer3MetallicScale;
-//
-//				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer3Mask, sampler_Layer3Pattern, input.uv).r);
-//#endif
-//#if defined(_LAYERNUMBERS_FOUR)||defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
-//				layer.color = PatternBlend(_Layer4Color, SAMPLE_TEXTURE2D(_Layer4Pattern, sampler_Layer4Pattern, input.uv));
-//				NaorDecode(SAMPLE_TEXTURE2D(_Layer4NAOR, sampler_Layer4Pattern, input.uv), _Layer4NormalScale, _Layer4AOScale, _Layer4RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
-//				layer.mso.x = _Layer4MetallicScale;
-//
-//				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer4Mask, sampler_Layer4Pattern, input.uv).r);
-//#endif
-//#if defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
-//				layer.color = PatternBlend(_Layer5Color, SAMPLE_TEXTURE2D(_Layer5Pattern, sampler_Layer5Pattern, input.uv));
-//				NaorDecode(SAMPLE_TEXTURE2D(_Layer5NAOR, sampler_Layer5Pattern, input.uv), _Layer5NormalScale, _Layer5AOScale, _Layer5RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
-//				layer.mso.x = _Layer5MetallicScale;
-//
-//				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer5Mask, sampler_Layer5Pattern, input.uv).r);
-//#endif
-//#if defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
-//				layer.color = PatternBlend(_Layer6Color, SAMPLE_TEXTURE2D(_Layer6Pattern, sampler_Layer6Pattern, input.uv));
-//				NaorDecode(SAMPLE_TEXTURE2D(_Layer6NAOR, sampler_Layer6Pattern, input.uv), _Layer6NormalScale, _Layer6AOScale, _Layer6RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
-//				layer.mso.x = _Layer6MetallicScale;
-//
-//				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer6Mask, sampler_Layer6Pattern, input.uv).r);
-//#endif
-//#if defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
-//				layer.color = PatternBlend(_Layer7Color, SAMPLE_TEXTURE2D(_Layer7Pattern, sampler_Layer7Pattern, input.uv));
-//				NaorDecode(SAMPLE_TEXTURE2D(_Layer7NAOR, sampler_Layer7Pattern, input.uv), _Layer7NormalScale, _Layer7AOScale, _Layer7RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
-//				layer.mso.x = _Layer7MetallicScale;
-//
-//				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer7Mask, sampler_Layer7Pattern, input.uv).r);
-//#endif
-//#if defined(_LAYERNUMBERS_EIGHT)
-//				layer.color = PatternBlend(_Layer8Color, SAMPLE_TEXTURE2D(_Layer8Pattern, sampler_Layer8Pattern, input.uv));
-//				NaorDecode(SAMPLE_TEXTURE2D(_Layer8NAOR, sampler_Layer8Pattern, input.uv), _Layer8NormalScale, _Layer8AOScale, _Layer8RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
-//				layer.mso.x = _Layer8MetallicScale;
-//
-//				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer8Mask, sampler_Layer8Pattern, input.uv).r);
-//
-//#endif
+#if defined(_LAYERNUMBERS_ONE)||defined(_LAYERNUMBERS_TWO)||defined(_LAYERNUMBERS_THREE)||defined(_LAYERNUMBERS_FOUR)||defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
+				layer.color = PatternBlend(_Layer1Color, SAMPLE_TEXTURE2D(_Layer1Pattern, sampler_Layer1Pattern, TRANSFORM_TEX(input.uv, _Layer1Pattern)) * _Layer1PatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_Layer1NAOR, sampler_Layer1Pattern, TRANSFORM_TEX(input.uv, _Layer1NAOR)), _Layer1NormalScale, _Layer1AOScale, _Layer1RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
+				layer.mso.x = _Layer1MetallicScale;
+
+				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer1Mask, sampler_Layer1Pattern, input.uv).r);
+#endif
+#if defined(_LAYERNUMBERS_TWO)||defined(_LAYERNUMBERS_THREE)||defined(_LAYERNUMBERS_FOUR)||defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
+				layer.color = PatternBlend(_Layer2Color, SAMPLE_TEXTURE2D(_Layer2Pattern, sampler_Layer2Pattern, TRANSFORM_TEX(input.uv, _Layer2Pattern)) * _Layer2PatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_Layer2NAOR, sampler_Layer2Pattern, TRANSFORM_TEX(input.uv, _Layer2NAOR)), _Layer2NormalScale, _Layer2AOScale, _Layer2RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
+				layer.mso.x = _Layer2MetallicScale;
+
+				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer2Mask, sampler_Layer2Pattern, input.uv).r);
+#endif
+#if defined(_LAYERNUMBERS_THREE)||defined(_LAYERNUMBERS_FOUR)||defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
+				layer.color = PatternBlend(_Layer3Color, SAMPLE_TEXTURE2D(_Layer3Pattern, sampler_Layer3Pattern, TRANSFORM_TEX(input.uv, _Layer3Pattern)) * _Layer3PatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_Layer3NAOR, sampler_Layer3Pattern, TRANSFORM_TEX(input.uv, _Layer3NAOR)), _Layer3NormalScale, _Layer3AOScale, _Layer3RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
+				layer.mso.x = _Layer3MetallicScale;
+
+				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer3Mask, sampler_Layer3Pattern, input.uv).r);
+#endif
+#if defined(_LAYERNUMBERS_FOUR)||defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
+				layer.color = PatternBlend(_Layer4Color, SAMPLE_TEXTURE2D(_Layer4Pattern, sampler_Layer4Pattern, TRANSFORM_TEX(input.uv, _Layer4Pattern)) * _Layer4PatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_Layer4NAOR, sampler_Layer4Pattern, TRANSFORM_TEX(input.uv, _Layer4NAOR)), _Layer4NormalScale, _Layer4AOScale, _Layer4RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
+				layer.mso.x = _Layer4MetallicScale;
+
+				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer4Mask, sampler_Layer4Pattern, input.uv).r);
+#endif
+#if defined(_LAYERNUMBERS_FIVE)||defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
+				layer.color = PatternBlend(_Layer5Color, SAMPLE_TEXTURE2D(_Layer5Pattern, sampler_Layer5Pattern, TRANSFORM_TEX(input.uv, _Layer5Pattern)) * _Layer5PatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_Layer5NAOR, sampler_Layer5Pattern, TRANSFORM_TEX(input.uv, _Layer5NAOR)), _Layer5NormalScale, _Layer5AOScale, _Layer5RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
+				layer.mso.x = _Layer5MetallicScale;
+
+				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer5Mask, sampler_Layer5Pattern, input.uv).r);
+#endif
+#if defined(_LAYERNUMBERS_SIX)||defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
+				layer.color = PatternBlend(_Layer6Color, SAMPLE_TEXTURE2D(_Layer6Pattern, sampler_Layer6Pattern, TRANSFORM_TEX(input.uv, _Layer6Pattern)) * _Layer6PatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_Layer6NAOR, sampler_Layer6Pattern, TRANSFORM_TEX(input.uv, _Layer6NAOR)), _Layer6NormalScale, _Layer6AOScale, _Layer6RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
+				layer.mso.x = _Layer6MetallicScale;
+
+				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer6Mask, sampler_Layer6Pattern, input.uv).r);
+#endif
+#if defined(_LAYERNUMBERS_SEVEN)||defined(_LAYERNUMBERS_EIGHT)
+				layer.color = PatternBlend(_Layer7Color, SAMPLE_TEXTURE2D(_Layer7Pattern, sampler_Layer7Pattern, TRANSFORM_TEX(input.uv, _Layer7Pattern)) * _Layer7PatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_Layer7NAOR, sampler_Layer7Pattern, TRANSFORM_TEX(input.uv, _Layer7NAOR)), _Layer7NormalScale, _Layer7AOScale, _Layer7RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
+				layer.mso.x = _Layer7MetallicScale;
+
+				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer7Mask, sampler_Layer7Pattern, input.uv).r);
+#endif
+#if defined(_LAYERNUMBERS_EIGHT)
+				layer.color = PatternBlend(_Layer8Color, SAMPLE_TEXTURE2D(_Layer8Pattern, sampler_Layer8Pattern, TRANSFORM_TEX(input.uv, _Layer8Pattern)) * _Layer8PatternColor);
+				NaorDecode(SAMPLE_TEXTURE2D(_Layer8NAOR, sampler_Layer8Pattern, TRANSFORM_TEX(input.uv, _Layer8NAOR)), _Layer8NormalScale, _Layer8AOScale, _Layer8RoughnessScale, layer.normal, layer.mso.y, layer.mso.z);
+				layer.mso.x = _Layer8MetallicScale;
+
+				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer8Mask, sampler_Layer8Pattern, input.uv).r);
+#endif
 				surfaceData.alpha = base.color.a;
-				surfaceData.albedo = base.color.rbg;
+				surfaceData.albedo = base.color.rgb;
 				surfaceData.metallic = base.mso.x;
 				surfaceData.specular = half3(0.0h, 0.0h, 0.0h);
 				surfaceData.smoothness = base.mso.y;
@@ -473,99 +474,99 @@
 			ENDHLSL
 		}
 
-		//Pass
-		//{
-		//	Name "ShadowCaster"
-		//	Tags{"LightMode" = "ShadowCaster"}
+		Pass
+		{
+			Name "ShadowCaster"
+			Tags{"LightMode" = "ShadowCaster"}
 
-		//	ZWrite On
-		//	ZTest LEqual
-		//	Cull[_Cull]
+			ZWrite On
+			ZTest LEqual
+			Cull[_Cull]
 
-		//	HLSLPROGRAM
-		//	// Required to compile gles 2.0 with standard srp library
-		//	#pragma prefer_hlslcc gles
-		//	#pragma exclude_renderers d3d11_9x
-		//	#pragma target 2.0
+			HLSLPROGRAM
+			// Required to compile gles 2.0 with standard srp library
+			#pragma prefer_hlslcc gles
+			#pragma exclude_renderers d3d11_9x
+			#pragma target 2.0
 
-		//	// -------------------------------------
-		//	// Material Keywords
-		//	#pragma shader_feature _ALPHATEST_ON
+			// -------------------------------------
+			// Material Keywords
+			#pragma shader_feature _ALPHATEST_ON
 
-		//	//--------------------------------------
-		//	// GPU Instancing
-		//	#pragma multi_compile_instancing
-		//	#pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+			//--------------------------------------
+			// GPU Instancing
+			#pragma multi_compile_instancing
+			#pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
-		//	#pragma vertex ShadowPassVertex
-		//	#pragma fragment ShadowPassFragment
+			#pragma vertex ShadowPassVertex
+			#pragma fragment ShadowPassFragment
 
-		//	#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-		//	#include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
-		//	ENDHLSL
-		//}
+			#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+			ENDHLSL
+		}
 
-		//Pass
-		//{
-		//	Name "DepthOnly"
-		//	Tags{"LightMode" = "DepthOnly"}
+		Pass
+		{
+			Name "DepthOnly"
+			Tags{"LightMode" = "DepthOnly"}
 
-		//	ZWrite On
-		//	ColorMask 0
-		//	Cull[_Cull]
+			ZWrite On
+			ColorMask 0
+			Cull[_Cull]
 
-		//	HLSLPROGRAM
-		//	// Required to compile gles 2.0 with standard srp library
-		//	#pragma prefer_hlslcc gles
-		//	#pragma exclude_renderers d3d11_9x
-		//	#pragma target 2.0
+			HLSLPROGRAM
+			// Required to compile gles 2.0 with standard srp library
+			#pragma prefer_hlslcc gles
+			#pragma exclude_renderers d3d11_9x
+			#pragma target 2.0
 
-		//	#pragma vertex DepthOnlyVertex
-		//	#pragma fragment DepthOnlyFragment
+			#pragma vertex DepthOnlyVertex
+			#pragma fragment DepthOnlyFragment
 
-		//	// -------------------------------------
-		//	// Material Keywords
-		//	#pragma shader_feature _ALPHATEST_ON
-		//	#pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+			// -------------------------------------
+			// Material Keywords
+			#pragma shader_feature _ALPHATEST_ON
+			#pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
-		//	//--------------------------------------
-		//	// GPU Instancing
-		//	#pragma multi_compile_instancing
+			//--------------------------------------
+			// GPU Instancing
+			#pragma multi_compile_instancing
 
-		//	#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-		//	#include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
-		//	ENDHLSL
-		//}
+			#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
+			ENDHLSL
+		}
 
-		//// This pass it not used during regular rendering, only for lightmap baking.
-		//Pass
-		//{
-		//	Name "Meta"
-		//	Tags{"LightMode" = "Meta"}
+		// This pass it not used during regular rendering, only for lightmap baking.
+		Pass
+		{
+			Name "Meta"
+			Tags{"LightMode" = "Meta"}
 
-		//	Cull Off
+			Cull Off
 
-		//	HLSLPROGRAM
-		//	// Required to compile gles 2.0 with standard srp library
-		//	#pragma prefer_hlslcc gles
-		//	#pragma exclude_renderers d3d11_9x
+			HLSLPROGRAM
+			// Required to compile gles 2.0 with standard srp library
+			#pragma prefer_hlslcc gles
+			#pragma exclude_renderers d3d11_9x
 
-		//	#pragma vertex UniversalVertexMeta
-		//	#pragma fragment UniversalFragmentMeta
+			#pragma vertex UniversalVertexMeta
+			#pragma fragment UniversalFragmentMeta
 
-		//	#pragma shader_feature _SPECULAR_SETUP
-		//	#pragma shader_feature _EMISSION
-		//	#pragma shader_feature _METALLICSPECGLOSSMAP
-		//	#pragma shader_feature _ALPHATEST_ON
-		//	#pragma shader_feature _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+			#pragma shader_feature _SPECULAR_SETUP
+			#pragma shader_feature _EMISSION
+			#pragma shader_feature _METALLICSPECGLOSSMAP
+			#pragma shader_feature _ALPHATEST_ON
+			#pragma shader_feature _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
-		//	#pragma shader_feature _SPECGLOSSMAP
+			#pragma shader_feature _SPECGLOSSMAP
 
-		//	#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-		//	#include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
 
-		//	ENDHLSL
-		//}
+			ENDHLSL
+		}
 	}
 	//CustomEditor "ASEMaterialInspector"
 	Fallback "Hidden/Universal Render Pipeline/FallbackError"
