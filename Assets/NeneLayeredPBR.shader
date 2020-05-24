@@ -332,24 +332,54 @@
 			// GPU Instancing
 			#pragma multi_compile_instancing
 
-
-#define _NORMALMAP 0
-#define _ALPHATEST_ON 0
-#define _ALPHAPREMULTIPLY_ON 0
-#define _EMISSION 0
-#define _METALLICSPECGLOSSMAP 0
-#define _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A 0
-#define _OCCLUSIONMAP 0
-#define _SPECULARHIGHLIGHTS_OFF 0
-#define _ENVIRONMENTREFLECTIONS_OFF 0
-#define _SPECULAR_SETUP 0
-#define _RECEIVE_SHADOWS_OFF 0
-
-			#pragma vertex LitPassVertex
+			#pragma vertex LayeredVertex
 			#pragma fragment LayeredFragment
 
 			#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
+
+			Varyings LayeredVertex(Attributes input)
+			{
+				Varyings output = (Varyings)0;
+
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_TRANSFER_INSTANCE_ID(input, output);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+
+				VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
+				VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
+				half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+				half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
+				half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
+
+				output.uv = input.texcoord;
+
+			#ifdef _NORMALMAP
+				output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
+				output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
+				output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
+			#else
+				output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
+				output.viewDirWS = viewDirWS;
+			#endif
+
+				OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
+				OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
+
+				output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
+
+			#if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
+				output.positionWS = vertexInput.positionWS;
+			#endif
+
+			#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+				output.shadowCoord = GetShadowCoord(vertexInput);
+			#endif
+
+				output.positionCS = vertexInput.positionCS;
+
+				return output;
+			}
 
 			half4 LayeredFragment(Varyings input) : SV_Target
 			{
@@ -421,22 +451,13 @@
 //				base = LayerMerge(base, layer, SAMPLE_TEXTURE2D(_Layer8Mask, sampler_Layer8Pattern, input.uv).r);
 //
 //#endif
-				//surfaceData.alpha = base.color.a;
+				surfaceData.alpha = base.color.a;
 				surfaceData.albedo = base.color.rbg;
-				//surfaceData.metallic = base.mso.x;
-				//surfaceData.specular = half3(0.0h, 0.0h, 0.0h);
-				//surfaceData.smoothness = base.mso.y;
-				//surfaceData.normalTS = base.normal;
-				//surfaceData.occlusion = base.mso.z;
-				//surfaceData.emission = half3(0.0h, 0.0h, 0.0h);
-
-				surfaceData.alpha = 1;
-				//surfaceData.albedo = SAMPLE_TEXTURE2D(_WholePattern, sampler_WholePattern, input.uv);
-				surfaceData.metallic = 0;
+				surfaceData.metallic = base.mso.x;
 				surfaceData.specular = half3(0.0h, 0.0h, 0.0h);
-				surfaceData.smoothness = 0;
-				surfaceData.normalTS = half3(0.0h, 0.0h, 1.0h);
-				surfaceData.occlusion = 0;
+				surfaceData.smoothness = base.mso.y;
+				surfaceData.normalTS = base.normal;
+				surfaceData.occlusion = base.mso.z;
 				surfaceData.emission = half3(0.0h, 0.0h, 0.0h);
 
 				InputData inputData;
