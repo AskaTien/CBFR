@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 19cf147ad52bd444b9cf65d38cc6ff21, type: 3}
-  m_Name: World Postion
+  m_Name: Slice
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    texBuf: 2
+    texBuf: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25,7 +25,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de640fe3d0db1804a85f9fc8f5cadab6, type: 3}
-  m_Name: WorldPositionRenderer
+  m_Name: SlicesRenderer
   m_EditorClassIdentifier: 
   m_RendererFeatures:
   - {fileID: -7284506455773469773}

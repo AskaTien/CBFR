@@ -13,6 +13,7 @@ public class ClusterRenderPassFeature : ScriptableRendererFeature
     public enum TexBuffer
     {
         Depth,
+        Slice,
         WorldPosition,
         Opaque
     }
