@@ -54,7 +54,7 @@
                     float depth = LinearEyeDepth(SampleSceneDepth(input.uv), _ZBufferParams);
 
                     float _NumSlices = 31;
-                    float slice = floor(log(depth) * _NumSlices / log(_ProjectionParams.z / _ProjectionParams.y) - _NumSlices * log(_ProjectionParams.y) / log(_ProjectionParams.z / _ProjectionParams.y));
+                    int slice = floor(log(depth) * _NumSlices / log(_ProjectionParams.z / _ProjectionParams.y) - _NumSlices * log(_ProjectionParams.y) / log(_ProjectionParams.z / _ProjectionParams.y));
                     
                     col.r = 1 - step(3, fmod(slice + 2, 6));
                     col.g = 1 - step(3, fmod(slice, 6));
