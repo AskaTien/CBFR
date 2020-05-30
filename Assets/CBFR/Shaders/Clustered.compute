@@ -1,0 +1,45 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+CBUFFER_START(UnityLightListClustered)
+	uint3 clusterDim; // The 3D dimensions of the cluster
+	float4 tileSizes;
+CBUFFER_END
+
+//Input
+uint tileSizePx; // How many pixels in x does a square tile use
+uint tileIndex; // Linear ID of the thread/cluster
+float zFar; // Far plane distance in view space depth
+float zNear; // Near plane distance in view space depth
+
+//Output
+struct Cluster
+{ // A cluster volume is represented using an AABB
+	float4 minPoint; // We use vec4s instead of a vec3 for memory alignment purposes
+	float4 maxPoint;
+};
+
+RWStructuredBuffer<Cluster> clusters; // A linear list of AABB's with size = numclusters
+
+struct ComputeShaderInput
+{
+	uint3 GroupID : SV_GroupID; // 3D index of the thread group in the dispatch.
+	uint3 GroupThreadID : SV_GroupThreadID; // 3D index of local thread ID in a thread group.
+	uint3 DispatchThreadID : SV_DispatchThreadID; // 3D index of global thread ID in the dispatch.
+	uint GroupIndex : SV_GroupIndex; // Flattened local index of the thread within a thread group.
+};
+
+[numthreads(8,1,1)]
+void CSMain(ComputeShaderInput cs_IDs)
+{
+	const float3 eyePos = float3(0.0);
+	
+	uint tileSizePx = tileSizes[3];
+	//uint tileIndex = sv
+	
+	//Near and far values of the cluster in view space
+    //We use equation (2) directly to obtain the tile values
+	float tileNear = zNear * pow(zFar / zNear, cs_IDs.GroupID.z / float(clusterDim.z));
+	float tileFar  = zNear * pow(zFar / zNear, (cs_IDs.GroupID.z + 1) / float(clusterDim.z));
+
+}
