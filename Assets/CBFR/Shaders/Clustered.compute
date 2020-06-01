@@ -1,16 +1,16 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+
 CBUFFER_START(UnityLightListClustered)
 	uint3 clusterDim; // The 3D dimensions of the cluster
-	float4 tileSizes;
+	uint4 tileSizes;
+	float zNear;
+	float zFar;
+	float4 _ScreenParams;
+	float4x4 inverseProjection;
 CBUFFER_END
-
-//Input
-uint tileSizePx; // How many pixels in x does a square tile use
-uint tileIndex; // Linear ID of the thread/cluster
-float zFar; // Far plane distance in view space depth
-float zNear; // Near plane distance in view space depth
 
 //Output
 struct Cluster
@@ -29,17 +29,71 @@ struct ComputeShaderInput
 	uint GroupIndex : SV_GroupIndex; // Flattened local index of the thread within a thread group.
 };
 
+//Changes a points coordinate system from screen space to view space
+float4 screen2View(float4 screen)
+{
+    //Convert to NDC
+	float2 texCoord = screen.xy * _ScreenParams.zw;
+
+    //Convert to clipSpace
+	float4 clip = float4(texCoord.xy * 2.0 - 1.0, screen.z, screen.w);
+
+    //View space transform
+	half4 view = mul(inverseProjection, clip);
+
+    //Perspective projection
+	view = view / view.w;
+
+	return view;
+}
+
+//Creates a line segment from the eye to the screen point, then finds its intersection
+//With a z oriented plane located at the given distance to the origin
+float3 lineIntersectionToZPlane(float3 A, float3 B, float zDistance)
+{
+    //all clusters planes are aligned in the same z direction
+	float3 normal = float3(0.0, 0.0, 1.0);
+    //getting the line from the eye to the tile
+	float3 ab = B - A;
+    //Computing the intersection length for the line and the plane
+	float t = (zDistance - dot(normal, A)) / dot(normal, ab);
+    //Computing the actual xyz position of the point along the line
+	float3 result = A + t * ab;
+	return result;
+}
+
 [numthreads(8,1,1)]
 void CSMain(ComputeShaderInput cs_IDs)
 {
-	const float3 eyePos = float3(0.0);
+	const float3 eyePos = float3(0.0, 0.0, 0.0);
 	
 	uint tileSizePx = tileSizes[3];
-	//uint tileIndex = sv
+	uint tileIndex = cs_IDs.GroupIndex;
+	
+	//Calculating the min and max point in screen space
+	float4 maxPoint_sS = float4((cs_IDs.GroupThreadID.xy + 1) * tileSizePx, -1.0, 1.0); // Top Right
+	float4 minPoint_sS = float4(cs_IDs.GroupThreadID.xy * tileSizePx, -1.0, 1.0); // Bottom left
+	
+	//Pass min and max to view space
+	float3 maxPoint_vS = screen2View(maxPoint_sS).xyz;
+	float3 minPoint_vS = screen2View(minPoint_sS).xyz;
 	
 	//Near and far values of the cluster in view space
     //We use equation (2) directly to obtain the tile values
 	float tileNear = zNear * pow(zFar / zNear, cs_IDs.GroupID.z / float(clusterDim.z));
 	float tileFar  = zNear * pow(zFar / zNear, (cs_IDs.GroupID.z + 1) / float(clusterDim.z));
+	
+    //Finding the 4 intersection points made from each point to the cluster near/far plane
+	float3 minPointNear = lineIntersectionToZPlane(eyePos, minPoint_vS, tileNear);
+	float3 minPointFar  = lineIntersectionToZPlane(eyePos, minPoint_vS, tileFar);
+	float3 maxPointNear = lineIntersectionToZPlane(eyePos, maxPoint_vS, tileNear);
+	float3 maxPointFar  = lineIntersectionToZPlane(eyePos, maxPoint_vS, tileFar);
 
+	float3 minPointAABB = min(min(minPointNear, minPointFar), min(maxPointNear, maxPointFar));
+	float3 maxPointAABB = max(max(minPointNear, minPointFar), max(maxPointNear, maxPointFar));
+
+    //Saving the AABB at the tile linear index
+    //Cluster is just a SSBO made of a struct of 2 vec4's
+	clusters[tileIndex].minPoint = float4(minPointAABB, 0.0);
+	clusters[tileIndex].maxPoint = float4(maxPointAABB, 0.0);
 }
