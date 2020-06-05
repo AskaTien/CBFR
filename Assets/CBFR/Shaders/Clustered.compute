@@ -62,7 +62,7 @@ float3 lineIntersectionToZPlane(float3 A, float3 B, float zDistance)
 	return result;
 }
 
-[numthreads(8,1,1)]
+[numthreads(32,32,1)]
 void CSMain(ComputeShaderInput cs_IDs)
 {
 	const float3 eyePos = float3(0.0, 0.0, 0.0);

@@ -1,0 +1,61 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+
+CBUFFER_START(UnityLightListClustered)
+	float3 pixelCoord; // Screen space pixel coordinate with depth
+	uint tileSizeInPx; // How many pixels a rectangular cluster takes in x and y
+	uint3 numClusters; // The fixed number of clusters in x y and z axes
+
+	float2 pixelID; // The thread x and y id corresponding to the pixel it is representing
+	float2 screenDimensions; // The total pixel size of the screen in x and y
+CBUFFER_END
+
+uint getClusterIndex(float3 pixelCoord)
+{
+    // Uses equation (3) from Building a Cluster Grid section
+	uint clusterZVal = getDepthSlice(pixelCoord.z);
+
+	uint3 clusters = uint3(uint2(pixelCoord.xy / tileSizeInPx), clusterZVal);
+	uint clusterIndex = clusters.x +
+                        numClusters.x * clusters.y +
+                        (numClusters.x * numClusters.y) * clusters.z;
+	return clusterIndex;
+}
+
+bool clusterActive[];
+
+void markActiveClusters()
+{
+    //Getting the depth value
+	float2 screenCord = pixelID.xy / screenDimensions.xy;
+	float z = texture(screenCord) //reading the depth buffer
+
+    //Getting the linear cluster index value
+	uint clusterID = getClusterIndex(float3(pixelID.xy, z));
+	clusterActive[clusterID] = true;
+}
+
+//One compute shader for all clusters, one cluster per thread
+void buildCompactClusterList()
+{
+	uint clusterIndex = gl_GlobalInvocationID;
+	if (clusterActive[clusterIndex])
+	{
+		uint offset = atomicAdd(globalActiveClusterCount, 1);
+		uniqueActiveClusters[offset] = clusterIndex;
+	}
+}
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}
