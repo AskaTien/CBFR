@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de640fe3d0db1804a85f9fc8f5cadab6, type: 3}
-  m_Name: ToonProjectionRenderer
+  m_Name: FurRenderer
   m_EditorClassIdentifier: 
   m_RendererFeatures:
-  - {fileID: 1779695243052946328}
-  m_RendererFeatureMap: 98939ff264bfb218
+  - {fileID: 3514693524419868489}
+  m_RendererFeatureMap: 4977698923b3c630
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}
@@ -37,7 +37,7 @@ MonoBehaviour:
     failOperation: 0
     zFailOperation: 0
   m_ShadowTransparentReceive: 1
---- !u!114 &1779695243052946328
+--- !u!114 &3514693524419868489
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,7 +46,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15425611088a9c94aa59c6c416e39fc0, type: 3}
-  m_Name: ToonProjection
+  m_Script: {fileID: 11500000, guid: 65c27be455f025c4b9fcdda8ee5787a0, type: 3}
+  m_Name: Fur
   m_EditorClassIdentifier: 
   m_Active: 1
+  settings:
+    passTag: FurRenderFeature
+    Event: 500
+    filterSettings:
+      LayerMask:
+        serializedVersion: 2
+        m_Bits: 256
+      PassNames: []
+    overrideMaterial: {fileID: 2100000, guid: 9300ce9923e27784ab8358a94e70e898, type: 2}
+    overrideMaterialPassIndex: 10
