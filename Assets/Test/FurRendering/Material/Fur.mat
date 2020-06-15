@@ -75,6 +75,7 @@ Material:
     - _EnvironmentReflections: 1
     - _FurLength: 1
     - _FurRootThickness: 1
+    - _FurStep: 0.5
     - _FurTipThickness: 0.1
     - _GlossMapScale: 0
     - _Glossiness: 0

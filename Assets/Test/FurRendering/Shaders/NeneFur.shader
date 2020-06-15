@@ -9,6 +9,7 @@
         
         _FurRootThickness("Fur Root Thickness", Range(0, 1)) = 1
         _FurTipThickness("Fur Tip Thickness", Range(0, 1)) = 0.1
+        _FurStep("Fur Step", Range(0, 1)) = 0.0
         _AlphaOffset("Alpha Offset", Float) = 0
     }
     SubShader
@@ -25,8 +26,6 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         
         #define _ALPHATEST_ON
-        
-        #define FURSTEP 0.0f
 
         CBUFFER_START(UnityPerMaterial)
         half4 _BaseColor;
@@ -34,6 +33,7 @@
         float4 _FurPattern_ST;
         half _FurRootThickness;
         half _FurTipThickness;
+        half _FurStep;
         half _AlphaOffset;
         CBUFFER_END
 
@@ -57,13 +57,13 @@
         {
             Varyings output = (Varyings)0;
 
-            input.positionOS.xyz += _FurLength * FURSTEP * input.normalOS;
+            input.positionOS.xyz += _FurLength * _FurStep * input.normalOS;
 
             VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
             output.vertex = vertexInput.positionCS;
             output.uv = TRANSFORM_TEX(input.uv, _FurPattern);
 
-            output.thickness = lerp((1 - _FurRootThickness), (1 - _FurRootThickness), FURSTEP);
+            output.thickness = lerp((1 - _FurRootThickness), (1 - _FurRootThickness), _FurStep);
 
             return output;
         }
@@ -89,11 +89,8 @@
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
 
-
             #pragma vertex vert
             #pragma fragment frag
-
-            #define FURSTEP 0.05
 
             ENDHLSL
         }
@@ -105,8 +102,6 @@
             // Required to compile gles 2.0 with standard srp library
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
-
-            #define FURSTEP 0.1
 
             #pragma vertex vert
             #pragma fragment frag
@@ -124,8 +119,6 @@
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
 
-            #define FURSTEP 0.15
-
             #pragma vertex vert
             #pragma fragment frag
 
@@ -141,8 +134,6 @@
             // Required to compile gles 2.0 with standard srp library
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
-
-            #define FURSTEP 0.2
 
             #pragma vertex vert
             #pragma fragment frag
@@ -160,8 +151,6 @@
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
 
-            #define FURSTEP 0.25
-
             #pragma vertex vert
             #pragma fragment frag
 
@@ -177,8 +166,6 @@
             // Required to compile gles 2.0 with standard srp library
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
-
-            #define FURSTEP 0.3
 
             #pragma vertex vert
             #pragma fragment frag
@@ -196,8 +183,6 @@
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
 
-            #define FURSTEP 0.35
-
             #pragma vertex vert
             #pragma fragment frag
 
@@ -213,8 +198,6 @@
             // Required to compile gles 2.0 with standard srp library
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
-
-            #define FURSTEP 0.4
 
             #pragma vertex vert
             #pragma fragment frag
@@ -249,8 +232,6 @@
             // Required to compile gles 2.0 with standard srp library
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
-
-            #define FURSTEP 0.5
 
             #pragma vertex vert
             #pragma fragment frag
